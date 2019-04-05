@@ -80,7 +80,6 @@ class PrivateTagsApiTest(TestCase):
         self.assertTrue(res.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(exits.count(), 1)
 
-
     def test_create_tag_invalid(self):
         """Testing the tag is not created when name is invalid"""
         payload = {'name': ''}
