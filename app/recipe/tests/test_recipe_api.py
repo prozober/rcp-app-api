@@ -114,3 +114,63 @@ class PrivateRecipeApiTest(TestCase):
         serializer = RecipeDetailSerializer(recipe)
 
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_basic_recipe(self):
+        """Testing the successful creation of a recipe"""
+        payload = {
+            'title': 'Rice with chicken',
+            'time_minutes': 20,
+            'price': 1.00
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertGreaterEqual(len(res.data), 1)
+
+        recipe = Recipe.objects.get(id=res.data['id'])
+
+        for key in payload:
+            self.assertEqual(payload[key], getattr(recipe, key))
+
+    def test_create_recipe_with_tag(self):
+        """Testing the successful creation of a recipe with a tag"""
+        tag1 = sample_tag(user=self.user, name='Sweet')
+        tag2 = sample_tag(user=self.user, name='Dessert')
+
+        payload = {
+            'title': 'Chocolate cake',
+            'tags': [tag1.id, tag2.id],
+            'time_minutes': 20,
+            'price': 10
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        tags = recipe.tags.all()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertIn(tag1, tags)
+        self.assertIn(tag2, tags)
+
+    def test_create_recipe_with_ingredients(self):
+        """Testing the successful creation of a recipe with a tag"""
+
+        ingredient1 = sample_ingredient(user=self.user, name='Rice')
+        ingredient2 = sample_ingredient(user=self.user, name='Salt')
+
+        payload = {
+            'title': 'Rice with chicken',
+            'time_minutes': 30,
+            'price':  2,
+            'ingredients': [ingredient1.id, ingredient2.id]
+        }
+
+        res = self.client.post(RECIPES_URL, payload)
+        recipe = Recipe.objects.get(id=res.data['id'])
+        ingredients = recipe.ingredients.all()
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(ingredients), 2)
+        self.assertIn(ingredient1, ingredients)
+        self.assertIn(ingredient2, ingredients)
