@@ -76,8 +76,6 @@ class PrivateIngredientsAPITest(TestCase):
             name=payload['name']
         )
 
-        print('API response {}'.format(res))
-
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertTrue(exists)
 
